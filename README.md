@@ -246,5 +246,5 @@ The server will start on `http://localhost:3000` (or the port specified in your 
 
 ## License
 
-This project is licensed under the [](License).
+This project is licensed under the [Apache License 2.0](LICENSE).
 
