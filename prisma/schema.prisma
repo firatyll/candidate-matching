@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Candidate model based on candidate.schema.ts
+model Candidate {
+  id                  String   @id @default(uuid())
+  firstName           String   @map("first_name")
+  lastName            String   @map("last_name")
+  email               String   @unique
+  phone               String?
+  skills              String[] // PostgreSQL array of strings
+  experience          Int      // Years of experience
+  location            String
+  availability        CandidateAvailability
+  salary_expectation  Int?     @map("salary_expectation")
+  resume_url          String?  @map("resume_url")
+  created_at          DateTime @default(now()) @map("created_at")
+  updated_at          DateTime @updatedAt @map("updated_at")
+
+  // Relations
+  applications        JobApplication[]
+
+  @@map("candidates")
+}
+
+// Job Position model based on job.schema.ts
+model JobPosition {
+  id                String              @id @default(uuid())
+  title             String
+  company           String
+  description       String
+  required_skills   String[]            // PostgreSQL array of strings
+  preferred_skills  String[]            // PostgreSQL array of strings
+  experience_level  ExperienceLevel     @map("experience_level")
+  location          String
+  remote_ok         Boolean             @default(false) @map("remote_ok")
+  salary_min        Int?                @map("salary_min")
+  salary_max        Int?                @map("salary_max")
+  employment_type   EmploymentType      @map("employment_type")
+  status            JobStatus           @default(ACTIVE)
+  created_at        DateTime            @default(now()) @map("created_at")
+  updated_at        DateTime            @updatedAt @map("updated_at")
+
+  // Relations
+  applications      JobApplication[]
+
+  @@map("job_positions")
+}
+
+// Job Application model to connect candidates and job positions
+model JobApplication {
+  id              String                @id @default(uuid())
+  candidate_id    String                @map("candidate_id")
+  job_position_id String                @map("job_position_id")
+  status          ApplicationStatus     @default(PENDING)
+  cover_letter    String?               @map("cover_letter")
+  applied_at      DateTime              @default(now()) @map("applied_at")
+  updated_at      DateTime              @updatedAt @map("updated_at")
+
+  // Relations
+  candidate       Candidate             @relation(fields: [candidate_id], references: [id], onDelete: Cascade)
+  job_position    JobPosition           @relation(fields: [job_position_id], references: [id], onDelete: Cascade)
+
+  @@unique([candidate_id, job_position_id])
+  @@map("job_applications")
+}
+
+// Enums based on the TypeScript schemas
+enum CandidateAvailability {
+  IMMEDIATE       @map("immediate")
+  WITHIN_WEEK     @map("within_week")
+  WITHIN_MONTH    @map("within_month")
+  NOT_AVAILABLE   @map("not_available")
+
+  @@map("candidate_availability")
+}
+
+enum ExperienceLevel {
+  ENTRY           @map("entry")
+  MID             @map("mid")
+  SENIOR          @map("senior")
+  LEAD            @map("lead")
+
+  @@map("experience_level")
+}
+
+enum EmploymentType {
+  FULL_TIME       @map("full_time")
+  PART_TIME       @map("part_time")
+  CONTRACT        @map("contract")
+  INTERNSHIP      @map("internship")
+
+  @@map("employment_type")
+}
+
+enum JobStatus {
+  ACTIVE          @map("active")
+  INACTIVE        @map("inactive")
+  FILLED          @map("filled")
+
+  @@map("job_status")
+}
+
+enum ApplicationStatus {
+  PENDING         @map("pending")
+  REVIEWED        @map("reviewed")
+  INTERVIEWED     @map("interviewed")
+  OFFERED         @map("offered")
+  ACCEPTED        @map("accepted")
+  REJECTED        @map("rejected")
+  WITHDRAWN       @map("withdrawn")
+
+  @@map("application_status")
+}
