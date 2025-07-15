@@ -13,7 +13,9 @@
     "prestart": "npm run build",
     "serve": "npm run build && npm start",
     "type-check": "tsc --noEmit",
-    "lint": "echo 'No linter configured yet'",
+    "lint": "tsc --noEmit --strict && echo '✅ TypeScript strict mode check passed'",
+    "lint:check": "npm run type-check",
+    "validate": "npm run lint && npm run build",
     "test": "echo 'No tests configured yet'"
   },
   "keywords": [],
