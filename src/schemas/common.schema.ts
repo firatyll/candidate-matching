@@ -4,6 +4,14 @@ export const IdParamSchema = z.object({
   id: z.string().uuid('Invalid ID format')
 });
 
+export const CandidateIdParamSchema = z.object({
+  candidateId: z.string().uuid('Invalid candidate ID format')
+});
+
+export const JobIdParamSchema = z.object({
+  jobId: z.string().uuid('Invalid job ID format')
+});
+
 export const PaginationQuerySchema = z.object({
   page: z.string().transform(val => parseInt(val)).refine(val => val > 0, 'Page must be greater than 0').optional(),
   limit: z.string().transform(val => parseInt(val)).refine(val => val > 0 && val <= 100, 'Limit must be between 1 and 100').optional(),
@@ -35,6 +43,8 @@ export const SuccessResponseSchema = z.object({
 });
 
 export type IdParam = z.infer<typeof IdParamSchema>;
+export type CandidateIdParam = z.infer<typeof CandidateIdParamSchema>;
+export type JobIdParam = z.infer<typeof JobIdParamSchema>;
 export type PaginationQuery = z.infer<typeof PaginationQuerySchema>;
 export type SearchQuery = z.infer<typeof SearchQuerySchema>;
 export type ErrorResponse = z.infer<typeof ErrorResponseSchema>;

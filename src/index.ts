@@ -4,6 +4,7 @@ import dotenv from 'dotenv';
 
 import candidateRoutes from './routes/candidate.routes';
 import jobRoutes from './routes/job.routes';
+import applicationRoutes from './routes/application.routes';
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.get('/health', (req, res) => {
 
 app.use('/api/candidates', candidateRoutes);
 app.use('/api/jobs', jobRoutes);
+app.use('/api/applications', applicationRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
