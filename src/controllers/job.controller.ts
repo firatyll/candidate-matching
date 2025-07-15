@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { PrismaClient, ExperienceLevel, EmploymentType, JobStatus, Prisma } from "../generated/prisma";
 import { CreateJobPosition, UpdateJobPosition } from "../schemas/job.schema";
 import { IdParam } from "../schemas/common.schema";
+import { vectorMatchingService } from "../services/matching/vector-matching.service";
 
 const prisma = new PrismaClient();
 
@@ -85,6 +86,11 @@ export const createJobPosition = async (req: Request<{}, {}, CreateJobPosition>,
     });
 
     const responseJobPosition = transformJobPositionForResponse(newJobPosition);
+
+    // Sync to vector database (async, don't block response)
+    vectorMatchingService.initialize()
+      .then(() => vectorMatchingService.upsertJob(newJobPosition.id))
+      .catch(error => console.warn('Failed to sync job to vector database:', error));
 
     return res.status(201).json({
       success: true,
@@ -243,6 +249,11 @@ export const updateJobPosition = async (req: Request<IdParam, {}, UpdateJobPosit
 
     const responseJobPosition = transformJobPositionForResponse(updatedJobPosition);
 
+    // Sync to vector database (async, don't block response)
+    vectorMatchingService.initialize()
+      .then(() => vectorMatchingService.upsertJob(updatedJobPosition.id))
+      .catch(error => console.warn('Failed to sync job to vector database:', error));
+
     return res.status(200).json({
       success: true,
       message: "Job position updated successfully",
@@ -300,6 +311,11 @@ export const deleteJobPosition = async (req: Request<IdParam>, res: Response) =>
     await prisma.jobPosition.delete({
       where: { id }
     });
+
+    // Remove from vector database (async, don't block response)
+    vectorMatchingService.initialize()
+      .then(() => vectorMatchingService.removeJob(id))
+      .catch(error => console.warn('Failed to remove job from vector database:', error));
 
     return res.status(200).json({
       success: true,
