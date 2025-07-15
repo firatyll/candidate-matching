@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { PrismaClient, CandidateAvailability, Prisma } from "../generated/prisma";
 import { CreateCandidate, UpdateCandidate } from "../schemas/candidate.schema";
 import { IdParam } from "../schemas/common.schema";
+import { vectorMatchingService } from "../services/matching/vector-matching.service";
 
 const prisma = new PrismaClient();
 
@@ -55,6 +56,11 @@ export const createCandidate = async (req: Request<{}, {}, CreateCandidate>, res
       ...newCandidate,
       availability: mapAvailabilityFromPrisma(newCandidate.availability)
     };
+
+    // Sync to vector database (async, don't block response)
+    vectorMatchingService.initialize()
+      .then(() => vectorMatchingService.upsertCandidate(newCandidate.id))
+      .catch(error => console.warn('Failed to sync candidate to vector database:', error));
 
     return res.status(201).json({
       success: true,
@@ -202,6 +208,11 @@ export const updateCandidate = async (req: Request<IdParam, {}, UpdateCandidate>
       availability: mapAvailabilityFromPrisma(updatedCandidate.availability)
     };
 
+    // Sync to vector database (async, don't block response)
+    vectorMatchingService.initialize()
+      .then(() => vectorMatchingService.upsertCandidate(updatedCandidate.id))
+      .catch(error => console.warn('Failed to sync candidate to vector database:', error));
+
     return res.status(200).json({
       success: true,
       message: "Candidate updated successfully",
@@ -259,6 +270,11 @@ export const deleteCandidate = async (req: Request<IdParam>, res: Response) => {
     await prisma.candidate.delete({
       where: { id }
     });
+
+    // Remove from vector database (async, don't block response)
+    vectorMatchingService.initialize()
+      .then(() => vectorMatchingService.removeCandidate(id))
+      .catch(error => console.warn('Failed to remove candidate from vector database:', error));
 
     return res.status(200).json({
       success: true,
