@@ -1,8 +1,20 @@
 # Candidate Matching API
 
+[![Dev to Main PR](https://github.com/firatyll/candidate-matching/actions/workflows/dev-to-main-pr.yml/badge.svg)](https://github.com/firatyll/candidate-matching/actions/workflows/dev-to-main-pr.yml)
+
 > **Note: This application is currently under active development. Features and API endpoints may change.**
 
 A RESTful API service for candidate and job position matching built with Node.js, Express, TypeScript, Prisma, and PostgreSQL.
+
+## 🚀 CI/CD Pipeline
+
+This repository includes an automated GitHub Actions pipeline that:
+- ✅ Runs code quality checks on every push to `dev` branch
+- 🤖 Generates AI-powered pull requests using OpenAI GPT-4
+- 📋 Automatically assigns reviewers and adds helpful labels
+- 🔍 Includes comprehensive review checklists
+
+See [Pipeline Setup Guide](./.github/PIPELINE_SETUP.md) for configuration details.
 
 ## Features
 
