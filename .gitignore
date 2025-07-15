@@ -20,3 +20,6 @@ build/
 
 # Prisma
 /src/generated
+
+# DOCS
+API_DOCUMENTATION.md
