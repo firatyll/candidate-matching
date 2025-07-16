@@ -1,5 +1,6 @@
 import { ChromaClient } from 'chromadb';
 import OpenAI from 'openai';
+import { EnvironmentEncryption } from '../utils/encryption.utils';
 
 export interface MatchingConfig {
   chromaHost: string;
@@ -10,7 +11,9 @@ export interface MatchingConfig {
 export const getMatchingConfig = (): MatchingConfig => {
   const chromaHost = process.env.CHROMA_HOST || 'localhost';
   const chromaPort = parseInt(process.env.CHROMA_PORT || '8000');
-  const openaiApiKey = process.env.OPENAI_API_KEY;
+  
+  // Use secure environment variable handling
+  const openaiApiKey = EnvironmentEncryption.getSecureEnvVar('OPENAI_API_KEY', false);
 
   if (!openaiApiKey) {
     throw new Error('OPENAI_API_KEY environment variable is required');
